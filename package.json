@@ -1,14 +1,14 @@
 {
   "name": "file-upload-server",
   "version": "1.0.0",
-  "description": "A simple file uploading server",
+  "description": "A server where user can upload file and from different device they can use download file on the system",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "dev": "nodemon index.js"
   },
   "author": "Harsh Sharma",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
     "bcrypt": "^6.0.0",

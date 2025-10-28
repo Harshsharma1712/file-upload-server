@@ -9,12 +9,24 @@ const router = express.Router();
 
 router.post("/register", async (req, res) => {
     const { username, password } = req.body;
-    if (!username || !password) return res.status(400).json({ message: "Missing fields" });
 
-    const existing = await db.select()
+    if (!username || !password) {
+        return res
+            .status(400)
+            .json(
+                { message: "Missing fields" });
+    }
+
+    const existing = await db
+        .select()
         .from(users)
         .where(eq(users.username, username))
-    if (existing.length > 0) return res.status(409).json({ message: "User exists" });
+
+    if (existing.length > 0) {
+        return res
+            .status(409)
+            .json({ message: "User exists" });
+    }
 
     const hash = await bcrypt.hash(password, 10);
     const inserted = await db.insert(users).values({ username, password_hash: hash }).returning();
@@ -29,11 +41,17 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
     const { username, password } = req.body;
-    if (!username || !password) return res.status(400).json({ message: "Missing fields" });
+
+    if (!username || !password) {
+        return res
+        .status(400)
+        .json({ message: "Missing fields" });
+    }
 
     const result = await db.select()
         .from(users)
         .where(eq(users.username, username));
+        
     const user = result[0];
     if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
@@ -45,7 +63,11 @@ router.post("/login", async (req, res) => {
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_EXPIRES_IN || "1h" }
     );
-    res.json({ token });
+    res
+        .status(200)
+        .json(
+            { message: "User login successfully.", token },
+        );
 });
 
 export default router;

@@ -22,6 +22,8 @@ fs.mkdirSync(UPLOAD_ROOT, { recursive: true });
 
 app.use("/api/auth", authRoutes);
 app.use("/api/files", fileRoutes);
+app.use("/api/get-files", fileRoutes);
+app.use("/api/download", fileRoutes)
 
 app.get("/", (req, res) => {
   res.json({ message: "File Share Server is running." });
