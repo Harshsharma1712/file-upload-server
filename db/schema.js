@@ -14,6 +14,7 @@ export const files = pgTable("files", {
   original_name: text("original_name").notNull(),
   mime: text("mime").notNull(),
   size: integer("size").notNull(),
-  path: text("path").notNull(),
+  path: text("path").default(null),
+  url: text("url"),   // Imageurl by imagekit
   created_at: timestamp("created_at").defaultNow().notNull()
 });
