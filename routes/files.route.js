@@ -6,6 +6,7 @@ import { files } from "../db/schema.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import imagekit from "../utils/imagekit.js";
 import { eq } from "drizzle-orm";
+import axios from "axios";
 
 const router = express.Router();
 
@@ -65,9 +66,9 @@ router.post("/upload", authMiddleware, upload.array("files", 10), async (req, re
 // Get All file
 router.get("/", authMiddleware, async (req, res) => {
   const userFiles = await db.select()
-  .from(files)
-  .where(eq(files.user_id, req.user.id));
-  
+    .from(files)
+    .where(eq(files.user_id, req.user.id));
+
   res.json({ files: userFiles });
 });
 
@@ -78,9 +79,9 @@ router.get("/:id/", authMiddleware, async (req, res) => {
 
   try {
     const result = await db.select()
-    .from(files)
-    .where(eq(files.id, id))
-    
+      .from(files)
+      .where(eq(files.id, id))
+
     const file = result[0];
 
     if (!file) {
@@ -91,8 +92,17 @@ router.get("/:id/", authMiddleware, async (req, res) => {
       return res.status(403).json({ message: "Forbidden" });
     }
 
-    // Redirect to ImageKit URL (browser will download it automatically)
-    return res.redirect(file.url);
+    // Fetch file from ImageKit or remote URL
+    const response = await axios.get(file.url, { responseType: "arraybuffer" });
+
+    // Set headers for download
+    res.setHeader("Content-Type", file.mime);
+    res.setHeader("Content-Disposition", `attachment; filename="${file.original_name}"`);
+
+    // Send file buffer
+    return res.send(response.data);
+
+    // return res.redirect(file.url);
   } catch (err) {
     console.error("Download error:", err);
     return res.status(500).json({ message: "Error downloading file" });
