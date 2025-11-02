@@ -16,5 +16,6 @@ export const files = pgTable("files", {
   size: integer("size").notNull(),
   path: text("path").default(null),
   url: text("url"),   // Imageurl by imagekit
+  imagekit_file_id: varchar("imagekit_file_id", 255),
   created_at: timestamp("created_at").defaultNow().notNull()
 });

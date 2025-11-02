@@ -31,7 +31,7 @@ router.post("/upload", authMiddleware, upload.array("files", 10), async (req, re
       const uploadResponse = await imagekit.upload({
         file: fileBuffer.toString("base64"), // Base64 encoding required by ImageKit
         fileName: file.originalname,
-        folder: "/uploads", // optional folder in your ImageKit dashboard
+        folder: "/uploads", // optional folder in your ImageKit
       });
 
       // Insert into DB (store ImageKit URL)
@@ -44,6 +44,7 @@ router.post("/upload", authMiddleware, upload.array("files", 10), async (req, re
           mime: file.mimetype,
           size: file.size,
           url: uploadResponse.url, // ImageKit hosted URL
+          imagekit_file_id: uploadResponse.fileId
         })
         .returning();
 
@@ -108,5 +109,61 @@ router.get("/:id/", authMiddleware, async (req, res) => {
     return res.status(500).json({ message: "Error downloading file" });
   }
 });
+
+
+// delete file
+router.delete("/:id", authMiddleware, async (req, res) => {
+
+  const id = Number(req.params.id)
+
+  try {
+
+    // Fetch file from DB
+    const result = await db.select()
+      .from(files)
+      .where(eq(files.id, id))
+
+    const file = result[0]
+
+    if (!file) {
+      return res
+        .status(404)
+        .json({ message: "File not found" })
+    }
+
+    // Check if the file belongs to the current user
+    if (file.user_id !== req.user.id) {
+      return res
+        .status(403)
+        .json({ message: "File is not for you" })
+    }
+
+    // Delete from ImageKit
+    try {
+      if(file.imagekit_file_id) {
+        await imagekit.deleteFile(file.imagekit_file_id)
+      }
+    } catch (error) {
+      console.error("Error while deleting imagekit file:", error);
+    }
+
+    // Delete from DB
+    await db
+      .delete(files)
+      .where(eq(files.id, id))
+
+
+    return res.json({
+      message: "File delete successfully from db"
+    })
+
+
+  } catch (error) {
+    console.error("Delete error:", error);
+    return res.status(500).json({ message: "Error deleting file" });
+  }
+
+})
+
 
 export default router;
