@@ -25,7 +25,9 @@ router.post("/upload", authMiddleware, upload.array("files", 10), async (req, re
 
     // Loop through each uploaded file
     for (const file of req.files) {
-      const fileBuffer = fs.readFileSync(file.path);
+      
+      try {
+        const fileBuffer = fs.readFileSync(file.path);
 
       // Upload to ImageKit
       const uploadResponse = await imagekit.upload({
@@ -35,7 +37,7 @@ router.post("/upload", authMiddleware, upload.array("files", 10), async (req, re
       });
 
       // Insert into DB (store ImageKit URL)
-      const record = await db
+      const [record] = await db
         .insert(files)
         .values({
           user_id: req.user.id,
@@ -48,10 +50,15 @@ router.post("/upload", authMiddleware, upload.array("files", 10), async (req, re
         })
         .returning();
 
+
+      uploadedRecords.push(record);
+
       // Remove temp file
       fs.unlinkSync(file.path);
+      } catch (error) {
+        console.log(`Error processing file ${file.originalname}`)
+      }
 
-      uploadedRecords.push(record[0]);
     }
 
     res.json({
@@ -140,7 +147,7 @@ router.delete("/:id", authMiddleware, async (req, res) => {
 
     // Delete from ImageKit
     try {
-      if(file.imagekit_file_id) {
+      if (file.imagekit_file_id) {
         await imagekit.deleteFile(file.imagekit_file_id)
       }
     } catch (error) {
