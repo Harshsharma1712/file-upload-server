@@ -122,7 +122,7 @@ You’ll get a public URL — share this with other users to allow them to downl
 | `POST` | `api/auth/register` | Register a new user          |
 | `POST` | `api/auth/login`    | Log in and receive JWT token |
 
-### **File Upload**
+### **File Upload Endpoint for testing**
 
 | Method | Endpoint        | Description                 |
 | ------ | --------------- | --------------------------- |
@@ -135,8 +135,6 @@ You’ll get a public URL — share this with other users to allow them to downl
 ```
 Authorization: Bearer <JWT_TOKEN>
 ```
-
----
 
 ---
 
