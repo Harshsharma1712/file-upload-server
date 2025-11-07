@@ -90,29 +90,6 @@ http://localhost:5000
 
 ---
 
-## Expose Locally with LocalTunnel
-
-To share files across devices, expose your local server using [LocalTunnel](https://localtunnel.github.io/www/):
-
-Create a new terminal
-
-```bash
-npm install -g localtunnel
-```
-
-You will also need to get the password of the tunnel which you can get the instruction from the webpage once you go to public url
-then run 
-
-```bash
-lt --port 8000
-```
-
-Make sure in another terminal, the project server is running.
-
-You’ll get a public URL — share this with other users to allow them to download files.
-
----
-
 ## API Endpoints
 
 ### **Authentication**
