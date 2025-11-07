@@ -27,7 +27,7 @@ const FileUpload = ({onUpload}) => {
 
     try {
       const token = localStorage.getItem("token"); // if using JWT
-      const res = await axios.post("http://localhost:8000/api/files/upload", formData, {
+      const res = await axios.post("/api/files/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`, // if authMiddleware is active

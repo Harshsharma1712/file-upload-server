@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../utils/api";
 import FileUpload from "../components/FileUpload.jsx";
+import axios from "axios"
 
 export default function Dashboard() {
   const [files, setFiles] = useState([]);
@@ -9,7 +10,7 @@ export default function Dashboard() {
 
   const fetchFiles = async () => {
     try {
-      const res = await api.get("/files");
+      const res = await axios.get("/api/files");
       // res.data.files is your actual array
       setFiles(res.data.files || []);
     } catch (err) {
@@ -38,7 +39,7 @@ export default function Dashboard() {
 
     try {
       const token = localStorage.getItem("token")
-      await api.delete(`/files/${id}`, {
+      await axios.delete(`api/files/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         }
