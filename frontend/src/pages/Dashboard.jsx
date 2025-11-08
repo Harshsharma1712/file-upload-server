@@ -10,7 +10,16 @@ export default function Dashboard() {
 
   const fetchFiles = async () => {
     try {
-      const res = await axios.get("/api/files");
+
+      // 1. Retrieve the token
+      const token = localStorage.getItem("token");
+
+      // 2. Make the GET request, including the Authorization header
+      const res = await axios.get("/api/files", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       // res.data.files is your actual array
       setFiles(res.data.files || []);
     } catch (err) {
