@@ -2,7 +2,7 @@
 # File Upload Server
 
 A lightweight and secure **file-sharing backend** built with **Express.js**, **Drizzle ORM**, and **Neon PostgreSQL**.
-This server allows users to **upload files**, store them securely with **ImageKit.io**, and generate **download links** accessible across devices using **LocalTunnel**.
+This server allows users to **upload files**, store them securely with **ImageKit.io**, and generate **download links** accessible across devices.
 
 ---
 
@@ -12,18 +12,19 @@ This server allows users to **upload files**, store them securely with **ImageKi
 *  **Upload up to 10 files** per request.
 *  **Supports image uploads** (more file types coming soon).
 *  **Cloud-based storage** via ImageKit.io — file URLs stored in database.
-*  **Cross-device access** — expose localhost using LocalTunnel to share files easily.
+*  **Cross-device access** — user can able to download from various device.
 * **Drizzle ORM + Neon PostgreSQL** — type-safe, fast, and reliable data layer.
 
 ---
 
 ## Tech Stack
 
-* Express.js 
-* Json Web Token
-* Postgressql
-* Drizzle ORM
-* ImageKit
+* Express.js (Backend framework)
+* Json Web Token (Token based Authentication)
+* Postgressql (Database)
+* Drizzle ORM (Object Relational Model)
+* ImageKit (For file uploding)
+* DaisyUI (For styling)
 
 
 ---
@@ -85,7 +86,7 @@ npm run dev
 Your API will now be available at:
 
 ```
-http://localhost:5000
+http://localhost:8000 (This is a example port)
 ```
 
 ---
@@ -106,6 +107,7 @@ http://localhost:5000
 | `POST` | `api/files/upload` | Upload up to 10 image files |
 | `GET` | `api/files/` | Get the the all files for user |
 | `GET` | `api/download/:id/` | Return image so user can download |
+| `DELETE` | `api/files/:id` | Delete the file by id from imagekit as well as from database |
 
 **Headers:**
 

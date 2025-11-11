@@ -1,21 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const FileUpload = ({onUpload}) => {
+const FileUpload = ({ onUpload }) => {
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
+  const [progress, setProgress] = useState(0);
 
-  
-  // handle file selection
   const handleFileChange = (e) => {
-    setFiles(Array.from(e.target.files)); // store multiple files
+    setFiles(Array.from(e.target.files));
+    setMessage("");
   };
 
-  // handle upload
   const handleUpload = async () => {
     if (files.length === 0) {
-      alert("Please select at least one file");
+      setMessage("⚠️ Please select at least one file");
       return;
     }
 
@@ -23,56 +22,99 @@ const FileUpload = ({onUpload}) => {
     files.forEach((file) => formData.append("files", file));
 
     setUploading(true);
+    setProgress(0);
     setMessage("");
 
     try {
-      const token = localStorage.getItem("token"); // if using JWT
+      const token = localStorage.getItem("token");
+
       const res = await axios.post("/api/files/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`, // if authMiddleware is active
+          Authorization: `Bearer ${token}`,
+        },
+        onUploadProgress: (event) => {
+          const percent = Math.round((event.loaded * 100) / event.total);
+          setProgress(percent);
         },
       });
 
-      console.log("Upload response:", res.data);
       setMessage("✅ Files uploaded successfully!");
       setFiles([]);
-
-       if (onUpload) onUpload();
-
-
+      if (onUpload) onUpload();
     } catch (err) {
       console.error("Upload error:", err);
-      setMessage("❌ Upload failed! Check console for details.");
+      setMessage("❌ Upload failed! Try again later.");
     } finally {
       setUploading(false);
+      setProgress(0);
     }
   };
 
-  return (
-    <div style={{ padding: 20, border: "1px solid #ccc", borderRadius: 10, width: 400 }}>
-      <h3>Upload Multiple Files</h3>
+  // Auto-clear message after 3 seconds
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => setMessage(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
 
+  return (
+    <div className="space-y-4">
+      {/* File input */}
       <input
         type="file"
         multiple
         onChange={handleFileChange}
-        style={{ marginBottom: 10 }}
+        className="file-input file-input-bordered w-full"
       />
 
+      {/* Selected files list */}
       {files.length > 0 && (
-        <ul>
-          {files.map((file, i) => (
-            <li key={i}>{file.name}</li>
-          ))}
-        </ul>
+        <div className="bg-base-200 p-3 rounded-lg max-h-32 overflow-auto">
+          <h3 className="text-sm font-semibold mb-2">Selected Files:</h3>
+          <ul className="list-disc list-inside text-sm text-base-content/80">
+            {files.map((file, i) => (
+              <li key={i}>{file.name}</li>
+            ))}
+          </ul>
+        </div>
       )}
 
-      <button onClick={handleUpload} disabled={uploading}>
-        {uploading ? "Uploading..." : "Upload"}
+      {/* Upload progress */}
+      {uploading && (
+        <div>
+          <progress
+            className="progress progress-primary w-full"
+            value={progress}
+            max="100"
+          ></progress>
+          <p className="text-center text-sm mt-1">{progress}% uploaded</p>
+        </div>
+      )}
+
+      {/* Upload button */}
+      <button
+        onClick={handleUpload}
+        disabled={uploading}
+        className={`btn w-full ${uploading ? "btn-disabled" : "btn-primary"}`}
+      >
+        {uploading ? "Uploading..." : "Upload Files"}
       </button>
 
-      {message && <p>{message}</p>}
+      {/* Message alert */}
+      {message && (
+        <div
+          className={`alert mt-2 ${message.startsWith("✅")
+              ? "alert-success"
+              : message.startsWith("❌")
+                ? "alert-error"
+                : "alert-warning"
+            }`}
+        >
+          <span>{message}</span>
+        </div>
+      )}
     </div>
   );
 };

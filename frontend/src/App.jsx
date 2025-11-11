@@ -7,11 +7,30 @@ function App() {
 
   const token = localStorage.getItem("token");
 
+  function ProtectedRoute({ children }) {
+    const token = localStorage.getItem("token");
+
+    // If no token, redirect to login
+    if (!token) {
+      return <Navigate to="/login" replace />;
+    }
+
+    // If token exists, allow access
+    return children;
+  }
+
   return (
     <BrowserRouter>
       <Routes>
 
-        <Route path="/" element={token ? <Dashboard /> : <Navigate to="/login" />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
 
         <Route path="/login" element={<Login />} />
 
